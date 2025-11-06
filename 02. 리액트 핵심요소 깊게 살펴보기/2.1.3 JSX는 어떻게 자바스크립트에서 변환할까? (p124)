@@ -1,0 +1,174 @@
+### 핵심 개념 요약
+
+### JSX 변환의 핵심 원리
+
+- JSX는 브라우저가 직접 이해할 수 없기 때문에,**Babel의 `@babel/plugin-transform-react-jsx` 플러그인**을 통해
+자바스크립트 코드로 **트랜스파일** 된다.
+- JSX는 결국 **`React.createElement()` 함수 호출 형태로 변환**된다.
+
+---
+
+### 기본 JSX 변환 예시
+
+```jsx
+// JSX 코드
+const ComponentA = <A required={true}>Hello World</A>
+const ComponentB = <>Hello World</>
+const ComponentC = (
+  <div>
+    <span>hello world</span>
+  </div>
+)
+```
+
+위 코드는 Babel을 통해 다음과 같이 변환된다.
+
+```jsx
+'use strict'
+
+var ComponentA = React.createElement(
+  A,
+  { required: true },
+  'Hello World'
+)
+
+var ComponentB = React.createElement(
+  React.Fragment,
+  null,
+  'Hello World'
+)
+
+var ComponentC = React.createElement(
+  'div',
+  null,
+  React.createElement('span', null, 'hello world')
+)
+```
+
+> ✅ 정리
+> 
+> 
+> JSX는 컴파일 과정에서 `React.createElement()` 호출로 치환되어
+> 
+> `type`, `props`, `children` 값을 인수로 넘겨 렌더링 요소를 생성한다.
+> 
+
+---
+
+### React 17 이후: Automatic Runtime
+
+React 17 / Babel 7.9.0 이후부터는 **자동 런타임(automatic runtime)** 이 도입되어,
+
+JSX가 다음과 같이 변환된다.
+
+```jsx
+'use strict'
+
+var _jsxRuntime = require('custom-jsx-library/jsx-runtime')
+
+var ComponentA = (0, _jsxRuntime.jsx)(A, {
+  required: true,
+  children: 'Hello World',
+})
+
+var ComponentB = (0, _jsxRuntime.jsx)(_jsxRuntime.Fragment, {
+  children: 'Hello World',
+})
+
+var ComponentC = (0, _jsxRuntime.jsx)('div', {
+  children: (0, _jsxRuntime.jsx)('span', { children: 'hello world' }),
+})
+```
+
+- `React.createElement` 대신 **`jsx()` / `jsxs()` 함수**를 사용하여 최적화된 결과를 생성.
+- `runtime: 'automatic'` 설정 시 JSX 파일 내에서 `React`를 직접 import할 필요가 없다.
+
+---
+
+### 직접 실습해보기 (Babel Standalone)
+
+Babel을 브라우저 환경에서 직접 사용할 수도 있다.
+
+```jsx
+import * as Babel from '@babel/standalone'
+
+Babel.registerPlugin(
+  '@babel/plugin-transform-react-jsx',
+  require('@babel/plugin-transform-react-jsx')
+)
+
+const BABEL_CONFIG = {
+  presets: [],
+  plugins: [
+    [
+      '@babel/plugin-transform-react-jsx',
+      {
+        throwIfNamespace: false,
+        runtime: 'automatic',
+        importSource: 'custom-jsx-library',
+      },
+    ],
+  ],
+}
+
+const SOURCE_CODE = `const ComponentA = <A>안녕하세요.</A>`
+const { code } = Babel.transform(SOURCE_CODE, BABEL_CONFIG)
+
+console.log(code)
+```
+
+> 실행 결과: JSX 코드가 jsx() 함수 호출 형태로 변환되어 출력됨.
+> 
+
+---
+
+### JSX 변환 특성 활용하기
+
+JSX는 결국 `React.createElement()` 호출 형태로 변환되므로,
+
+같은 속성(props)에서 **태그만 동적으로 바꾸는 리팩터링**이 가능하다.
+
+```jsx
+// ❌ 중복되는 JSX 코드
+function TextOrHeading({ isHeading, children }) {
+  return isHeading ? (
+    <h1 className="text">{children}</h1>
+  ) : (
+    <span className="text">{children}</span>
+  )
+}
+```
+
+위 코드는 JSX 변환 특성을 이용해 다음처럼 단축할 수 있다.
+
+```jsx
+// ✅ createElement 활용 버전
+import { createElement } from 'react'
+
+function TextOrHeading({ isHeading, children }) {
+  return createElement(isHeading ? 'h1' : 'span', { className: 'text' }, children)
+}
+```
+
+> isHeading 값에 따라 'h1' 또는 'span' 태그를 선택적으로 렌더링.
+> 
+> 
+> JSX가 결국 `React.createElement()`로 변환된다는 사실을 이해하면
+> 
+> **JSX 내부 중복을 제거하고, 조건부 렌더링을 더욱 간결하게 작성할 수 있다.**
+> 
+
+---
+
+### 질문 및 토론 사항
+
+- React 17의 자동 런타임(`jsxRuntime`)과 기존 `React.createElement` 방식의 구체적 차이는 무엇일까?
+- JSX를 직접 변환해보는 과정에서 Babel의 플러그인 옵션(`runtime`, `importSource`)은 어떻게 작동할까?
+- 컴파일 과정에서 JSX → `createElement()`로 변환된다는 사실이 **성능 최적화나 리팩터링**에 어떤 도움을 줄까?
+
+---
+
+### 참고 자료(링크)
+
+- [Babel Plugin: @babel/plugin-transform-react-jsx](https://babeljs.io/docs/babel-plugin-transform-react-jsx)
+- [React 17: New JSX Transform](https://reactjs.org/blog/2020/09/22/introducing-the-new-jsx-transform.html)
