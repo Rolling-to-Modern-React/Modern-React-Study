@@ -1,0 +1,32 @@
+### 핵심 개념 요약
+
+---
+
+- **데이터 타입 분류**
+    - **원시 타입 (Primitive Type)**: boolean, null, undefined, number, string, symbol, bigint
+    - **객체 타입 (Object/Reference Type)**: 나머지 전부 (배열, 함수, 정규식, 클래스 등)
+- **원시 타입 특징**
+    - 불변(immutable), 값 자체 저장
+    - `undefined`: 선언됐지만 값 없음
+    - `null`: 의도적 “없음”, `typeof null === "object"`는 JS 버그
+    - `boolean`: true/false + truthy/falsy
+    - `number`: 하나의 타입으로 정수/실수 표현, 안전 범위는 ±(2^53 - 1)
+    - `bigint`: number의 한계 넘어서는 큰 정수 표현
+    - `string`: 변경 불가, 템플릿 리터럴 지원
+    - `symbol`: 유일한 값, 객체 키로 주로 활용
+- **객체 타입 특징**
+    - 참조(reference) 저장 → 비교 시 주소값 기준
+    - 배열, 함수, 정규식, 클래스 포함
+    - 함수도 객체 취급 (`typeof 함수 === "function"`)
+
+---
+
+### 질문 및 토론 사항
+
+1. `typeof null === "object"` 어떤 상황을 대비해서 생각해야 할까?
+2. `BigInt`와 `Number`를 둘다 사용해야 하면 타입이 다르므로 하나만 통일해서 써야할까?
+3. `Symbol`은 실제 프로젝트에서 어떤 상황에서 쓰면 좋을까?
+
+---
+
+### 참고 자료(링크)
