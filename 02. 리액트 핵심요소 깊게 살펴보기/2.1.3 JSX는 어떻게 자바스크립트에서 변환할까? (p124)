@@ -2,7 +2,7 @@
 
 ### JSX 변환의 핵심 원리
 
-- JSX는 브라우저가 직접 이해할 수 없기 때문에,**Babel의 `@babel/plugin-transform-react-jsx` 플러그인**을 통해
+- JSX는 브라우저가 직접 이해할 수 없기 때문에, **Babel의 `@babel/plugin-transform-react-jsx` 플러그인**을 통해
 자바스크립트 코드로 **트랜스파일** 된다.
 - JSX는 결국 **`React.createElement()` 함수 호출 형태로 변환**된다.
 
